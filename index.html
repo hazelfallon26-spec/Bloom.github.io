@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bloom — a little garden, just for you</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#FFF9F0;--blush:#F7DDE7;--petal:#EFB8CE;--rose:#C985A2;--mist:#E7DFFA;--lilac:#CDBEF0;--sage:#DDE8D2;--leaf:#78966B;--deep:#425A42;--butter:#F7E8A8;--sky:#DDEBF8;--white:#FFFEFC;--serif:'Cormorant Garamond',Georgia,serif;--sans:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif}
+*{box-sizing:border-box;margin:0}
+body{font:16px/1.55 var(--sans);color:var(--deep);background:linear-gradient(180deg,var(--cream),var(--blush) 140%);min-height:100vh;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.06;z-index:99;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E")}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--rose);outline-offset:2px}
+h1,h2,h3{font-family:var(--serif);font-weight:600;line-height:1.05}
+.ital{font-family:var(--serif);font-style:italic;font-size:1.1rem}
+.btn{border:0;border-radius:99px;padding:.8rem 1.5rem;background:var(--white);color:var(--deep);font-weight:600;box-shadow:0 6px 18px -8px rgba(66,90,66,.45);transition:transform .2s,box-shadow .2s,background .2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 22px -8px rgba(66,90,66,.5)}
+.btn:active{transform:scale(.96)}
+.pri{background:var(--deep);color:var(--cream)}
+.sm{padding:.4rem .95rem;font-size:.88rem}
+header{position:fixed;top:0;left:0;right:0;z-index:40;display:flex;align-items:center;gap:1.4rem;padding:.8rem 1.4rem;background:rgba(255,249,240,.55);backdrop-filter:blur(10px)}
+.logo{display:flex;align-items:center;gap:.5rem;font:600 1.7rem var(--serif);background:none;border:0}
+.logo svg{width:28px;height:36px}
+nav{display:flex;gap:1.2rem;margin-left:auto}
+nav button{background:none;border:0;font-weight:500}
+nav button:hover{color:var(--rose)}
+@media(max-width:700px){nav{display:none}header .btn{margin-left:auto}}
+/* hero */
+#hero{position:relative;min-height:100svh;overflow:hidden;--k:1;transition:opacity .5s}
+#hero.out{opacity:0}
+.copy{position:relative;z-index:5;text-align:center;padding:16vh 1.2rem 0;max-width:760px;margin:auto}
+.copy h1{font-size:clamp(2.8rem,8vw,5.4rem);color:var(--deep);text-shadow:0 2px 24px rgba(255,254,252,.8)}
+.copy p{font-size:1.15rem;margin:1rem 0 1.6rem}
+.copy .row{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap}
+.copy small{display:block;margin-top:1rem;color:var(--deep);opacity:.8}
+body.in #hero{display:none}body:not(.in) #app{display:none}
+@media(max-width:700px){#hero,.garden{--k:1.7}}
+/* scene / garden */
+.scene{position:absolute;inset:0}
+.garden{position:relative;aspect-ratio:4/3.1;border-radius:32px;overflow:hidden;box-shadow:0 26px 60px -26px rgba(66,90,66,.45);--k:1}
+@media(max-width:700px){.garden{aspect-ratio:4/5}}
+.garden.plant{cursor:crosshair}
+.bgw,.bgw svg,.items,.fx,#tint{position:absolute;inset:0;width:100%;height:100%}
+.fx,#tint,.bf{pointer-events:none}
+.fx{overflow:hidden}
+.it{position:absolute;transform:translate(-50%,-100%);width:calc(var(--w)*var(--k,1));pointer-events:none}
+.it svg{display:block;width:100%;height:auto;overflow:visible;pointer-events:none}
+.it svg *{pointer-events:auto}
+.it .sw{cursor:pointer}
+.st{transform-origin:50px 155px}.h{transform-origin:50px 50px}
+.fl .st,.fl .h{transition:transform 1.8s cubic-bezier(.3,1.35,.5,1)}
+.s1 .st{transform:scaleY(.2)}.s1 .h{transform:scale(0)}.s2 .h{transform:scale(.5)}
+.dc.s1{animation:drop .7s ease-out}
+@keyframes drop{from{opacity:0;transform:translate(-50%,-140%)}}
+.fl.s3 .sw{animation:sway 5s ease-in-out infinite;transform-origin:50% 100%}
+@keyframes sway{0%,100%{transform:rotate(calc(var(--amp,1.8deg)*-1))}50%{transform:rotate(var(--amp,1.8deg))}}
+.breeze{--amp:5deg}
+.it.sel{filter:drop-shadow(0 0 6px #fff) drop-shadow(0 0 14px var(--petal))}
+.p{position:absolute;left:var(--x);display:block}
+.pt{top:-6%;width:10px;height:14px;background:var(--petal);border-radius:80% 0 80% 0;opacity:.8;animation:fall var(--d) linear infinite}
+@keyframes fall{to{top:104%;transform:translateX(var(--dx)) rotate(300deg)}}
+.sp{top:var(--y);width:4px;height:4px;border-radius:50%;background:#fff;box-shadow:0 0 8px 2px #fff;animation:tw 2.4s ease-in-out infinite}
+@keyframes tw{50%{opacity:.1;transform:scale(.4)}}
+.ff{top:var(--y);width:6px;height:6px;border-radius:50%;background:var(--butter);box-shadow:0 0 10px 4px rgba(247,232,168,.8);animation:dr var(--d) ease-in-out infinite alternate}
+@keyframes dr{to{transform:translate(var(--dx),var(--dy));opacity:.3}}
+.bs{position:absolute;width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 8px #fff;pointer-events:none;animation:pop .9s ease-out forwards}
+@keyframes pop{to{transform:translate(var(--dx),var(--dy));opacity:0}}
+.bf{position:absolute;width:26px;animation:fly var(--t) ease-in-out infinite alternate}
+.bf svg{width:100%;animation:flap .45s ease-in-out infinite alternate}
+@keyframes fly{25%{transform:translate(90px,-40px)}50%{transform:translate(40px,30px)}75%{transform:translate(160px,-20px)}to{transform:translate(220px,20px)}}
+@keyframes flap{to{transform:scaleX(.4)}}
+.garden.glow{z-index:60;box-shadow:0 0 90px 24px rgba(255,236,200,.9)}
+.info{position:absolute;left:12px;bottom:12px;width:min(360px,calc(100% - 24px));background:rgba(255,254,252,.93);border-radius:22px;padding:1rem 1.1rem;box-shadow:0 10px 30px -10px rgba(66,90,66,.5);z-index:300;cursor:default}
+.info[hidden]{display:none}
+.info b{font:600 1.5rem var(--serif)}.stg{margin-left:.6rem;font-size:.8rem;background:var(--sage);border-radius:99px;padding:.1rem .6rem}
+.info .row,.sws{display:flex;gap:.5rem;margin-top:.6rem;flex-wrap:wrap}
+.sws button{width:26px;height:26px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(66,90,66,.3)}
+.sws .on{box-shadow:0 0 0 3px var(--rose)}
+/* app */
+#app{max-width:1100px;margin:auto;padding:84px 14px 50px;animation:fin .8s}
+@keyframes fin{from{opacity:0}}
+.top{display:flex;align-items:flex-end;gap:1rem;flex-wrap:wrap;margin-bottom:.8rem}
+.top h2{font-size:clamp(2rem,5vw,3rem);margin-right:auto}
+.bar{display:flex;align-items:center;gap:.8rem;margin-bottom:.8rem;flex-wrap:wrap;font-size:.95rem}
+.bar span{background:var(--white);border-radius:99px;padding:.3rem .9rem}
+.panel{margin-top:1.2rem;background:rgba(255,254,252,.75);border-radius:28px;padding:1rem 1.1rem 1.2rem}
+.tabs{display:flex;gap:.4rem;margin-bottom:.9rem;flex-wrap:wrap}
+.tab,.chip,.opt{border:0;border-radius:99px;padding:.5rem 1rem;background:var(--mist);transition:background .2s}
+.tab.on,.chip.on,.opt.on{background:var(--deep);color:var(--cream)}
+.pane{display:none}.pane.on{display:block}
+.chips{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;margin-bottom:.7rem}
+.chips input{border:1px solid var(--lilac);border-radius:99px;padding:.45rem 1rem;background:var(--white);min-width:0;flex:1;max-width:220px}
+.tray{display:flex;gap:.6rem;overflow-x:auto;padding:.4rem .2rem .8rem;scroll-snap-type:x proximity}
+.fc{flex:0 0 auto;width:92px;border:2px solid transparent;border-radius:22px;background:var(--cream);padding:.5rem .3rem;text-align:center;scroll-snap-align:start;transition:transform .2s}
+.fc:hover{transform:translateY(-3px)}
+.fc.on{background:var(--white);border-color:var(--petal);box-shadow:0 8px 20px -10px var(--rose)}
+.fc svg{width:46px;height:74px;display:block;margin:auto}.fc span{font-size:.82rem;display:block}
+.moods{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.7rem}
+.mb{border:0;border-radius:24px;padding:.9rem;text-align:left;background:var(--c);transition:transform .2s}
+.mb:hover{transform:translateY(-3px)}.mb.on{outline:3px solid var(--deep)}
+.mb svg{width:34px;height:54px;float:right}.mb b{font:600 1.5rem var(--serif);display:block}.mb small{display:block;max-width:12ch}
+.res{margin-top:1rem;text-align:center}.res .msg{font:italic 500 clamp(1.4rem,3.5vw,2rem)/1.25 var(--serif);max-width:30ch;margin:.5rem auto 1rem}
+.res .pair{display:flex;justify-content:center;gap:1rem}.res svg{width:64px;height:102px}
+.grp{margin-bottom:1rem}.grp h3{font-size:1.3rem;margin-bottom:.4rem}.grp .chips{margin:0}
+.grp input{max-width:300px}
+.dtr .fc svg{height:56px}
+/* modals */
+dialog{border:0;border-radius:30px;padding:1.4rem;max-width:min(980px,94vw);width:100%;max-height:88vh;background:var(--cream);color:var(--deep)}
+dialog::backdrop{background:rgba(66,90,66,.4)}
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.8rem;margin-top:1rem}
+.cd{background:var(--white);border-radius:24px;padding:1rem;text-align:center}
+.cd svg{width:60px;height:96px}.cd h3{font-size:1.5rem}.cd p{font-size:.9rem;margin:.3rem 0}.cd small{display:block;margin-bottom:.6rem;opacity:.8}
+#rv{position:fixed;inset:0;z-index:50;background:rgba(40,50,60,.6);opacity:0;pointer-events:none;transition:opacity 1s}
+#rv.on{opacity:1}
+#rv .rp{position:absolute;inset:0;overflow:hidden;z-index:70;pointer-events:none}
+#rv .card{position:fixed;bottom:18px;left:50%;transform:translate(-50%,160%);z-index:80;background:var(--cream);border-radius:26px;padding:1rem 1.4rem;text-align:center;transition:transform .8s;width:min(440px,94vw)}
+#rv .card.show{transform:translate(-50%,0)}#rv .card.show,#rv.on{pointer-events:auto}
+#rv .card h3{font-size:1.7rem}#rv .card .row{display:flex;gap:.5rem;justify-content:center;margin-top:.7rem;flex-wrap:wrap}
+#toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,200%);background:var(--deep);color:var(--cream);padding:.7rem 1.3rem;border-radius:99px;z-index:200;transition:transform .4s;max-width:92vw;text-align:center}
+#toast.on{transform:translate(-50%,0)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01s!important}.s1 .st,.s1 .h,.s2 .h{transform:none}}
+</style></head><body>
+<header><button class="logo" id="home" aria-label="Bloom home"><svg viewBox="0 0 100 160" id="lg"></svg>bloom.</button>
+<nav><button data-go="">Garden</button><button data-go="flowers">Flowers</button><button data-go="heart">Heart</button><button data-go="style">Customize</button></nav>
+<button class="btn pri sm" data-go="">Enter the garden</button></header>
+
+<section id="hero"><div class="scene" id="hs"></div>
+<div class="copy"><h1>A little garden, just for you.</h1><p class="ital">Plant a flower. Set an intention. Watch something beautiful grow.</p>
+<div class="row"><button class="btn pri" data-go="">Grow my garden</button><button class="btn" id="explore">Explore the flowers</button></div>
+<small>No account needed. Just a little space to bloom.</small></div></section>
+
+<main id="app">
+<div class="top"><h2 id="title"></h2><button class="btn sm" id="keep" hidden>Keep this garden</button><button class="btn pri" id="rev">Reveal my garden</button></div>
+<div class="bar"><span id="hint"></span><span id="cnt"></span></div>
+<div class="garden" id="g"><div class="bgw" id="bgw"></div><div id="tint"></div><div class="items" id="items"></div><div class="fx" id="fx"></div><div id="bfs"></div>
+<div class="info" id="info" hidden></div></div>
+<div class="panel">
+<div class="tabs"><button class="tab on" data-t="flowers">Flowers</button><button class="tab" data-t="heart">What my heart needs</button><button class="tab" data-t="style">Customize</button></div>
+<div class="pane on" id="p-flowers"><div class="chips" id="cats"></div><div class="tray" id="tray"></div><div class="sws" id="sw"></div></div>
+<div class="pane" id="p-heart"><h3 style="font-size:1.8rem;margin-bottom:.7rem">What does your heart need today?</h3><div class="moods" id="moods"></div><div class="res" id="res"></div></div>
+<div class="pane" id="p-style">
+<div class="grp"><h3>Garden name</h3><div class="chips"><input id="nm" maxlength="32" aria-label="Garden name"></div></div>
+<div class="grp"><h3>Sky and light</h3><div class="chips" id="skies"></div></div>
+<div class="grp"><h3>Atmosphere</h3><div class="chips" id="fxs"></div></div>
+<div class="grp"><h3>Decorations</h3><div class="tray dtr" id="decos"></div></div>
+<button class="btn sm" id="clr">Clear my garden</button></div>
+</div></main>
+
+<dialog id="cat"><div style="display:flex;align-items:center"><h2 style="font-size:2.2rem;margin-right:auto">The flowers of Bloom</h2><button class="btn sm" id="cx">Close</button></div><div class="cg" id="cg"></div></dialog>
+<div id="rv"><div class="rp"></div><div class="card"><h3 id="rn"></h3><p class="ital" id="rc"></p><div class="row"><button class="btn pri sm" id="dl">Download image</button><button class="btn sm" id="lk">Copy share link</button><button class="btn sm" id="rx">Back to garden</button></div></div></div>
+<div id="toast" role="status"></div>
+
+<script>
+/* Bloom — single file. Sharing note: a garden link encodes the garden (flower ids, colours, positions, sky) into the URL hash,
+   so it needs no server. Limits: it only works for others once index.html is hosted (e.g. GitHub Pages), and a very large
+   garden makes a long link. Downloaded PNGs work anywhere. Saves live in this browser's localStorage only. */
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const E=(x,y,rx,ry,f,r=0,s='')=>`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="${f}" ${s}${r?` transform="rotate(${r} ${x} ${y})"`:''}/>`;
+const C=(x,y,r,f)=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${f}"/>`;
+const ST='stroke="rgba(66,90,66,.2)" stroke-width=".7"';
+const P=(n,rx,ry,d,f,o=0,cx=50,cy=50)=>{let s='';for(let i=0;i<n;i++)s+=E(cx,cy-d,rx,ry,f,0,`${ST} transform="rotate(${i*360/n+o} ${cx} ${cy})"`);return s};
+const mx=(c,t,a)=>{const p=h=>[1,3,5].map(i=>parseInt(h.substr(i,2),16)),A=p(c),B=p(t.length<5?'#'+t[1].repeat(2)+t[1].repeat(2)+t[1].repeat(2):t);return '#'+A.map((v,i)=>Math.round(v+(B[i]-v)*a).toString(16).padStart(2,'0')).join('')};
+const pts=(n,f)=>[...Array(n)].map((_,i)=>f(i)).join('');
+const H={
+daisy:c=>P(14,3.6,15,13,c)+C(50,50,7.5,'#F2B83B')+C(50,50,3.5,'#E39A1E'),
+tulip:c=>`<path d="M33 52C31 36 35 26 39 19 45 27 49 36 50 54Z" fill="${mx(c,'#000',.1)}" ${ST}/><path d="M67 52C69 36 65 26 61 19 55 27 51 36 50 54Z" fill="${mx(c,'#000',.1)}" ${ST}/><path d="M38 58C35 42 43 30 50 22 57 30 65 42 62 58 60 68 40 68 38 58Z" fill="${c}" ${ST}/>`,
+sunflower:c=>P(16,5,17,16,mx(c,'#fff',.25))+P(16,4.5,15,14,c,11)+C(50,50,12,'#6B4226')+C(50,50,7,'#4A2C17'),
+rose:c=>P(5,10,10,10,c)+P(5,8,8,7,mx(c,'#fff',.2),36)+P(5,6,6,4,c,10)+`<path d="M47 50a3 3 0 1 1 3 3 6 6 0 1 1-6-6" fill="none" stroke="${mx(c,'#000',.35)}" stroke-width="1.2"/>`,
+lavender:c=>pts(9,i=>E(50+(i%2?3.5:-3.5),64-i*5,4.2-i*.28,3.2,i%3?c:mx(c,'#fff',.3)))+E(50,17,2.5,3.5,c),
+cherry:c=>P(5,9,11,10,c)+pts(7,i=>{const a=i*.897,x=50+13*Math.cos(a),y=50+13*Math.sin(a);return `<line x1="50" y1="50" x2="${x}" y2="${y}" stroke="#E86C97" stroke-width=".8"/>`+C(x,y,1.4,'#F7E8A8')})+C(50,50,3,'#E86C97'),
+cosmos:c=>P(8,6,15,13,c)+C(50,50,5.5,'#F2B83B'),
+lily:c=>pts(6,i=>`<path d="M50 50C41 38 45 22 50 11 55 22 59 38 50 50Z" fill="${c}" ${ST} transform="rotate(${i*60} 50 50)"/>`)+pts(5,i=>{const a=i*1.256,x=50+10*Math.sin(a),y=50-10*Math.cos(a);return `<line x1="50" y1="50" x2="${x}" y2="${y}" stroke="#78966B" stroke-width=".8"/>`+C(x,y,1.8,'#C26B3A')}),
+forget:c=>[[50,38],[34,58],[66,56]].map(([x,y])=>P(5,3.6,5,4.4,c,0,x,y)+C(x,y,2,'#F7D83A')).join(''),
+marigold:c=>P(14,5,13,12,mx(c,'#000',.06))+P(12,4.5,10,8,c,8)+P(10,4,7,5,mx(c,'#fff',.25))+C(50,50,3,'#C77B12'),
+hydrangea:c=>{let s='',k=0;for(let y=-2;y<=2;y++)for(let x=-2;x<=2;x++){const X=50+x*10+(y%2?5:0),Y=48+y*9;if(Math.hypot(X-50,Y-48)<26)s+=P(4,3,4.3,3.6,k++%3?c:mx(c,'#fff',.35),k*17,X,Y)+C(X,Y,1.1,'#F7E8A8')}return s},
+poppy:c=>P(4,12,12,9,c,45)+P(4,9,9,7,mx(c,'#000',.1))+C(50,50,5,'#2B2B36')+pts(8,i=>C(50+9*Math.cos(i*.785),50+9*Math.sin(i*.785),1.2,'#2B2B36')),
+peony:c=>P(8,10,10,11,c)+P(7,9,9,8,mx(c,'#fff',.25),20)+P(6,7,7,6,c,5)+P(5,5,5,3,mx(c,'#fff',.2),30)+C(50,50,3,mx(c,'#000',.2)),
+bluebell:c=>[[33,46,-20],[47,34,-8],[62,40,14]].map(([x,y,r])=>`<g transform="rotate(${r} ${x} ${y})"><path d="M${x} ${y-14}V${y-4}" stroke="#78966B" stroke-width="1.5"/><path d="M${x-6} ${y+8}C${x-8} ${y-2} ${x-4} ${y-5} ${x} ${y-5} ${x+4} ${y-5} ${x+8} ${y-2} ${x+6} ${y+8}Q${x} ${y+4} ${x-6} ${y+8}Z" fill="${c}" ${ST}/></g>`).join(''),
+daffodil:c=>{const t=c=='#FFFEFC'?'#F7DC4A':'#F2A93B';return P(6,6.5,13,11,c)+E(50,50,8.5,7.5,t,0,ST)+E(50,50,5,4.5,mx(t,'#000',.2))},
+buttercup:c=>P(5,9,10,8,c)+C(50,50,4,'#C8A21A')+E(43,42,3,1.6,'#fff',-30,'opacity=".6"'),
+jasmine:c=>pts(5,i=>`<path d="M50 50C45 40 47 26 50 16 53 26 55 40 50 50Z" fill="${c}" ${ST} transform="rotate(${i*72} 50 50)"/>`)+C(50,50,3,'#F7E8A8'),
+wildflower:c=>`<path d="M50 120Q66 100 70 68M50 126Q34 106 30 74" stroke="#78966B" stroke-width="2" fill="none"/>`+P(6,5,10,9,c)+C(50,50,4,'#F7E8A8')+P(5,3.5,6,6,'#CDBEF0',0,70,68)+C(70,68,2,'#F7E8A8')+P(5,3.5,6,6,'#F7E8A8',0,30,74)+C(30,74,2,'#C985A2')};
+const LL=new Set(['tulip','daffodil','lily','lavender','bluebell','wildflower']);
+const stem=t=>`<g class="st"><path d="M50 156C48 124 52 92 50 54" stroke="#78966B" stroke-width="3.2" fill="none" stroke-linecap="round"/>`+(LL.has(t)?`<path d="M50 152C34 132 28 104 32 78 45 100 52 128 50 152Z" fill="#78966B"/><path d="M50 152C66 136 74 112 70 90 57 108 49 132 50 152Z" fill="#8BAA7C"/>`:`<path d="M50 132C32 132 22 118 20 108 36 108 48 116 50 132Z" fill="#78966B"/><path d="M50 118C68 118 78 104 80 94 64 94 52 102 50 118Z" fill="#8BAA7C"/>`)+`</g>`;
+const flower=(t,c)=>`<svg viewBox="0 0 100 160">${stem(t)}<g class="h">${H[t](c)}</g></svg>`;
+const F=[
+['daisy','Daisy','spring wild',['#FFFEFC','#F7DDE7','#F7E8A8','#CDBEF0'],'Innocence, hope & fresh beginnings','Open-faced and easy, it greets every morning like the first one.'],
+['tulip','Tulip','spring romantic',['#EFB8CE','#E0606F','#F7E8A8','#CDBEF0','#FFFEFC'],'New beginnings, affection & elegance','A quiet cup of colour, holding the morning light.'],
+['sunflower','Sunflower','sunny',['#F5C63C','#F2A93B'],'Warmth, optimism & confidence','Always turning toward whatever is bright.'],
+['rose','Rose','romantic',['#EFB8CE','#D9566E','#F5B795','#FFFEFC'],'Love, devotion & beauty','Petal upon petal, each one a small promise.'],
+['lavender','Lavender','wild',['#A98BDB','#CDBEF0'],'Calm, rest & peace','A soft purple hush that smells like slowing down.'],
+['cherry','Cherry Blossom','spring romantic',['#F7C6D8','#FFFEFC'],'Renewal, fleeting beauty & the present moment','It blooms briefly, and that is exactly why we look.'],
+['cosmos','Cosmos','wild',['#EFB8CE','#D4569B','#FFFEFC'],'Harmony, balance & freedom','Airy and unbothered, dancing on the thinnest stem.'],
+['lily','Lily','romantic spring',['#FFFEFC','#F7DDE7','#F9CDB0'],'Renewal, grace & purity','Tall, graceful, and quietly certain of itself.'],
+['forget','Forget-me-not','tiny wild',['#7FA9E6','#A8C4F0'],'Remembrance, friendship & connection','Tiny blue stars for the people we carry with us.'],
+['marigold','Marigold','sunny',['#F29A2E','#F5C63C'],'Warmth, celebration & creativity','A little sun made of ruffled gold.'],
+['hydrangea','Hydrangea','romantic',['#8FB0E8','#EFB8CE','#B9A6E8'],'Gratitude, abundance & heartfelt emotion','Hundreds of small blossoms holding hands.'],
+['poppy','Poppy','wild romantic',['#E4502E','#F28A6B','#F7B0C4','#FFFEFC'],'Imagination, remembrance & dreams','Thin as silk and bold as a daydream.'],
+['peony','Peony','romantic',['#F7C0D2','#F4D9DE','#F08C8C','#FFFEFC'],'Prosperity, tenderness & happiness','Full, ruffled, and generous with its softness.'],
+['bluebell','Bluebell','spring tiny wild',['#6F7FD8','#9A8BE0'],'Wonder, humility & quiet beauty','Little bells that ring only for those who linger.'],
+['daffodil','Daffodil','spring sunny',['#F7DC4A','#FFFEFC'],'Renewal, optimism & spring','A golden trumpet announcing that the cold is over.'],
+['buttercup','Buttercup','sunny tiny',['#F7D83A'],'Joy, playfulness & simple happiness','Glossy as a dab of butter, cheerful as a skipped stone.'],
+['jasmine','Jasmine','tiny',['#FFFEFC'],'Serenity, affection & gentleness','Small white stars with a fragrance that settles the room.'],
+['wildflower','Wildflower','wild',['#EFB8CE','#F7E8A8','#CDBEF0'],'Individuality, freedom & embracing imperfection','Uneven and unplanned, and all the lovelier for it.']];
+const Fm=Object.fromEntries(F.map(f=>[f[0],f]));
+const D={
+butterfly:['Butterfly',5,'<path d="M50 50C30 20 8 28 14 48 18 62 38 60 50 50Z" fill="#EFB8CE"/><path d="M50 50C70 20 92 28 86 48 82 62 62 60 50 50Z" fill="#CDBEF0"/><path d="M50 52C36 70 26 82 38 84 46 84 50 66 50 52Z" fill="#CDBEF0"/><path d="M50 52C64 70 74 82 62 84 54 84 50 66 50 52Z" fill="#EFB8CE"/><rect x="48" y="34" width="4" height="34" rx="2" fill="#425A42"/>'],
+mushroom:['Tiny mushroom',6,'<rect x="42" y="50" width="16" height="40" rx="7" fill="#FFF9F0"/><path d="M12 56C12 24 88 24 88 56Q50 64 12 56Z" fill="#E58BA3"/><circle cx="34" cy="42" r="6" fill="#FFFEFC"/><circle cx="58" cy="38" r="5" fill="#FFFEFC"/><circle cx="72" cy="50" r="4" fill="#FFFEFC"/>'],
+stone:['Garden stone',7,'<ellipse cx="50" cy="78" rx="40" ry="20" fill="#B9B6C9"/><ellipse cx="42" cy="70" rx="22" ry="9" fill="#D2CFE0"/>'],
+pond:['Small pond',16,'<ellipse cx="50" cy="70" rx="48" ry="22" fill="#9DBB8C"/><ellipse cx="50" cy="70" rx="42" ry="18" fill="#BFD9EE"/><ellipse cx="40" cy="66" rx="18" ry="6" fill="#DDEBF8" opacity=".8"/><circle cx="64" cy="74" r="7" fill="#78966B"/><circle cx="64" cy="73" r="2.5" fill="#F7DDE7"/>'],
+sign:['Wooden sign',7,'<rect x="46" y="40" width="8" height="55" rx="3" fill="#9A7B5A"/><rect x="16" y="14" width="68" height="36" rx="8" fill="#C9A77C"/><path d="M50 44C30 32 40 22 50 32 60 22 70 32 50 44Z" fill="#EFB8CE"/>'],
+lantern:['Glowing lantern',6,'<rect x="48" y="44" width="4" height="52" fill="#6B5A4A"/><circle cx="50" cy="30" r="28" fill="#F7E8A8" opacity=".35"/><rect x="38" y="16" width="24" height="30" rx="8" fill="#F7E8A8" stroke="#6B5A4A" stroke-width="3"/><rect x="42" y="10" width="16" height="6" rx="3" fill="#6B5A4A"/>'],
+bench:['Little bench',14,'<rect x="10" y="40" width="80" height="10" rx="4" fill="#C9A77C"/><rect x="10" y="22" width="80" height="8" rx="4" fill="#C9A77C"/><rect x="16" y="50" width="7" height="40" rx="3" fill="#9A7B5A"/><rect x="77" y="50" width="7" height="40" rx="3" fill="#9A7B5A"/><rect x="16" y="28" width="7" height="14" fill="#9A7B5A"/><rect x="77" y="28" width="7" height="14" fill="#9A7B5A"/>'],
+arch:['Garden arch',16,'<path d="M16 96V50C16 10 84 10 84 50V96" fill="none" stroke="#F4EDE2" stroke-width="9" stroke-linecap="round"/><g fill="#78966B"><circle cx="18" cy="40" r="6"/><circle cx="26" cy="22" r="6"/><circle cx="50" cy="14" r="6"/><circle cx="74" cy="22" r="6"/><circle cx="82" cy="40" r="6"/></g><g fill="#EFB8CE"><circle cx="22" cy="30" r="4"/><circle cx="38" cy="16" r="4"/><circle cx="62" cy="16" r="4"/><circle cx="80" cy="30" r="4"/></g>']};
+const dsvg=t=>`<svg viewBox="0 0 100 100">${D[t][2]}</svg>`;
+const S={ // name, sky top, sky bottom, sun, sunX, sunY, hill1, hill2, ground
+sunrise:['Sunrise','#F7DDE7','#FFF0D0','#FFD98A',300,125,'#D6DCC4','#B9CBA4','#9DBB8C'],
+day:['Soft daytime','#DDEBF8','#FFF9F0','#FFF3B8',80,55,'#C9DCBB','#A9C79A','#8FB382'],
+golden:['Golden hour','#F5C98A','#FBE6B8','#F7B64A',320,100,'#C9C58F','#A9B57A','#8FA568'],
+twilight:['Twilight','#7F6FB0','#E8A7C0','#F3C9A0',60,130,'#7C86AA','#6A8A8E','#587A74'],
+night:['Moonlit night','#1F2A4D','#4A5A8A','#FFFEFC',310,50,'#3A4B70','#34585D','#2E4C48']};
+const bg=(k,u)=>{const[,t,b,s,sx,sy,h1,h2,g]=S[k];return `<svg class="bg" viewBox="0 0 400 300" preserveAspectRatio="none"><defs><linearGradient id="g${u}" x2="0" y2="1"><stop offset="0" stop-color="${t}"/><stop offset=".62" stop-color="${b}"/></linearGradient></defs><rect width="400" height="300" fill="url(#g${u})"/>`+
+(k=='night'?[[40,30],[90,60],[150,25],[220,50],[260,20],[350,90],[120,95],[30,100]].map(a=>`<circle cx="${a[0]}" cy="${a[1]}" r="1.3" fill="#fff"/>`).join(''):`<path d="M${sx} ${sy}L${sx-170} 190 ${sx-90} 190Z" fill="#fff" opacity=".13"/>`)+
+`<circle cx="${sx}" cy="${sy}" r="${k=='night'?16:24}" fill="${s}" opacity=".95"/><path d="M0 150Q70 105 150 140T300 125T400 140V300H0Z" fill="${h1}"/><path d="M0 170Q100 130 200 165T400 150V300H0Z" fill="${h2}"/><path d="M0 190Q120 165 220 185T400 178V300H0Z" fill="${g}"/>`+
+pts(22,i=>`<circle cx="${(i*53)%400}" cy="${205+(i*37)%85}" r="1.6" fill="${['#F7DDE7','#F7E8A8','#E7DFFA'][i%3]}" opacity=".8"/>`)+`</svg>`};
+const M={peace:['Peace','for when the world feels too loud','Not everything needs to be solved today. Some things can simply rest.',['lavender','forget'],'#CDBEF0'],
+hope:['Hope','for a fresh beginning','Every new beginning starts smaller than you imagine.',['daisy','cherry'],'#F7E8A8'],
+courage:['Courage','for taking the next step',"You don't need to feel fearless to take the next step.",['sunflower','poppy'],'#F5B795'],
+joy:['Joy','for finding light in little things','Let the little things count. They were never little to begin with.',['buttercup','marigold'],'#F7E8A8'],
+love:['Love','for connection and affection','Make room for the things and people that make you feel at home.',['rose','peony'],'#EFB8CE'],
+growth:['Growth','for becoming who you want to be','You are allowed to grow at your own pace.',['tulip','daffodil'],'#DDE8D2']};
+const FX={petals:'Falling petals',breeze:'Gentle breeze',sparkles:'Light sparkles',fireflies:'Floating fireflies',none:'No effect'};
+const CATS={all:'All flowers',spring:'Spring',wild:'Wildflowers',romantic:'Romantic',sunny:'Bright & sunny',tiny:'Tiny'};
+const LIM=70;
+let st={name:'My Little Meadow',sky:'day',fx:'petals',mood:null,items:[]},tool={k:'f',t:'daisy',c:0},sel=null,moving=false,visit=false,uid=1,cat='all',q='';
+const g=$('#g'),items=$('#items'),info=$('#info');
+const col=o=>Fm[o.t][3][o.c]||Fm[o.t][3][0];
+const wOf=o=>o.k=='f'?7+(o.y-58)*.16:D[o.t][1]*(.85+(o.y-58)/130);
+const rnd=(a,b)=>a+Math.random()*(b-a);
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('on'),3400)}
+function save(){if(!visit)try{localStorage.setItem('bloom.v1',JSON.stringify(st))}catch(e){}}
+function load(){try{const h=location.hash.match(/g=([\w-]+)/);if(h){const d=JSON.parse(decodeURIComponent(escape(atob(h[1].replace(/-/g,'+').replace(/_/g,'/')))));
+st={name:String(d.n||'Shared garden').slice(0,32),sky:S[d.s]?d.s:'day',fx:FX[d.f]?d.f:'petals',mood:M[d.m]?d.m:null,items:d.i.filter(a=>a[1]=='f'?Fm[a[0]]:D[a[0]]).slice(0,LIM).map((a,j)=>({i:j+1,t:a[0],k:a[1],c:a[2]|0,x:+a[3],y:+a[4],at:0}))};visit=true;return}
+const r=JSON.parse(localStorage.getItem('bloom.v1'));if(r&&r.items)st=Object.assign(st,r)}catch(e){}uid=Math.max(0,...st.items.map(o=>o.i))+1}
+/* items */
+function mk(o,fresh,host){const d=document.createElement('div');d.className='it '+(o.k=='f'?'fl':'dc')+(fresh?' s1':' s3');d.dataset.i=o.i;
+d.style.cssText=`left:${o.x}%;top:${o.y}%;--w:${wOf(o).toFixed(2)}%;z-index:${Math.round(o.y*10)}`;
+d.innerHTML=`<div class="sw" style="animation-delay:${-(o.i*1.7%5)}s">${o.k=='f'?flower(o.t,col(o)):dsvg(o.t)}</div>`;(host||items).append(d);
+if(fresh){void d.offsetWidth;setTimeout(()=>d.className=d.className.replace('s1','s2'),60);setTimeout(()=>d.className=d.className.replace('s2','s3'),2000)}return d}
+const node=i=>items.querySelector(`[data-i="${i}"]`);
+function count(){$('#cnt').textContent=`${st.items.length} / ${LIM} planted`}
+function hint(){$('#hint').textContent=moving?'Tap where it should go.':tool?`Planting: ${tool.k=='f'?Fm[tool.t][1]:D[tool.t][0]} — tap the meadow to place it.`:'Choose a flower below to start planting.';g.classList.toggle('plant',!!tool||moving)}
+function burst(x,y){for(let i=0;i<7;i++){const s=document.createElement('i');s.className='bs';s.style.cssText=`left:${x}%;top:${y-6}%;--dx:${rnd(-40,40)}px;--dy:${rnd(-50,10)}px`;g.append(s);setTimeout(()=>s.remove(),950)}}
+function plant(x,y,t){t=t||tool;if(st.items.length>=LIM)return toast('Your garden is full. Tap a flower to remove one and make room.');
+const o={i:uid++,k:t.k,t:t.t,c:t.c,x:+x.toFixed(1),y:+y.toFixed(1),at:Date.now()};st.items.push(o);mk(o,true);burst(o.x,o.y);save();count()}
+g.addEventListener('click',e=>{const r=g.getBoundingClientRect();let x=(e.clientX-r.left)/r.width*100,y=(e.clientY-r.top)/r.height*100;x=Math.min(96,Math.max(4,x));y=Math.min(97,Math.max(62,y));
+const it=e.target.closest('.it');
+if(moving){const o=st.items.find(a=>a.i==sel);o.x=+x.toFixed(1);o.y=+y.toFixed(1);const n=node(o.i);n.style.left=o.x+'%';n.style.top=o.y+'%';n.style.zIndex=Math.round(o.y*10);n.style.setProperty('--w',wOf(o).toFixed(2)+'%');moving=false;hideInfo();save();return}
+if(it)return pick(+it.dataset.i);
+if(sel!=null)return hideInfo();
+if(tool)plant(x,y);else toast('Choose a flower below, then tap the meadow.')});
+function hideInfo(){sel=null;info.hidden=true;$$('.it.sel').forEach(e=>e.classList.remove('sel'));hint()}
+function pick(i){sel=i;moving=false;$$('.it').forEach(e=>e.classList.toggle('sel',e.dataset.i==i));const o=st.items.find(x=>x.i==i);if(!o)return hideInfo();let h;
+if(o.k=='f'){const f=Fm[o.t],age=Date.now()-o.at;h=`<b>${f[1]}</b><span class="stg">${age<1500?'Seedling':age<3500?'Growing':'Blooming'}</span><p class="ital">${f[5]}</p><p><small>Meaning: ${f[4]}</small></p><div class="sws">${f[3].map((c,j)=>`<button data-c="${j}" style="background:${c}" aria-label="Colour ${j+1}" class="${j==o.c?'on':''}"></button>`).join('')}</div>`}
+else h=`<b>${D[o.t][0]}</b><p class="ital">A little detail for your meadow.</p>`;
+info.innerHTML=h+`<div class="row"><button class="btn sm" data-a="mv">Move</button><button class="btn sm" data-a="rm">Remove</button><button class="btn sm" data-a="x">Close</button></div>`;info.hidden=false;burst(o.x,o.y-4)}
+info.addEventListener('click',e=>{e.stopPropagation();const b=e.target.closest('button');if(!b)return;const o=st.items.find(x=>x.i==sel);if(!o)return;
+if(b.dataset.c!=null){o.c=+b.dataset.c;node(o.i).querySelector('.sw').innerHTML=flower(o.t,col(o));save();return pick(o.i)}
+const a=b.dataset.a;if(a=='x')hideInfo();
+if(a=='rm'){node(o.i).remove();st.items=st.items.filter(x=>x!==o);hideInfo();save();count()}
+if(a=='mv'){moving=true;info.hidden=true;hint();toast('Tap a new spot for it.')}});
+/* atmosphere */
+function parts(f,type,n){f.innerHTML='';const c={petals:'pt',breeze:'pt',sparkles:'sp',fireflies:'ff'}[type];if(!c)return;for(let i=0;i<n;i++){const s=document.createElement('i');s.className='p '+c;s.style.cssText=`--x:${rnd(0,100)}%;--y:${rnd(8,90)}%;--d:${rnd(7,14)}s;--dx:${rnd(-50,50)}px;--dy:${rnd(-40,40)}px;animation-delay:${-rnd(0,12)}s`;f.append(s)}}
+function applyFx(){g.classList.toggle('breeze',st.fx=='breeze');parts($('#fx'),st.fx,{petals:14,sparkles:22,fireflies:12,breeze:5}[st.fx]||0)}
+function applySky(){$('#bgw').innerHTML=bg(st.sky,'g')}
+function applyMood(){$('#tint').style.background=st.mood?`radial-gradient(circle at 50% 25%,${M[st.mood][4]}66,transparent 70%)`:''}
+const bfs=()=>[[18,30,17],[60,22,23],[78,45,20]].map(a=>`<div class="bf" style="left:${a[0]}%;top:${a[1]}%;--t:${a[2]}s">${dsvg('butterfly')}</div>`).join('');
+/* UI */
+function setTool(t){tool=t;renderTray();renderSw();hint()}
+function renderTray(){const l=F.filter(f=>(cat=='all'||f[2].split(' ').includes(cat))&&f[1].toLowerCase().includes(q));
+$('#tray').innerHTML=l.map(f=>`<button class="fc ${tool&&tool.k=='f'&&tool.t==f[0]?'on':''}" data-t="${f[0]}">${flower(f[0],f[3][tool&&tool.t==f[0]?tool.c:0]||f[3][0])}<span>${f[1]}</span></button>`).join('')||'<p class="ital">No flowers match that search.</p>';
+$$('#tray .fc').forEach(b=>b.onclick=()=>setTool({k:'f',t:b.dataset.t,c:0}));
+$$('#cats .chip').forEach(b=>b.classList.toggle('on',b.dataset.c==cat))}
+function renderSw(){$('#sw').innerHTML=tool&&tool.k=='f'?Fm[tool.t][3].map((c,j)=>`<button data-c="${j}" style="background:${c}" aria-label="Colour ${j+1}" class="${j==tool.c?'on':''}"></button>`).join(''):'';
+$$('#sw button').forEach(b=>b.onclick=()=>{tool.c=+b.dataset.c;renderTray();renderSw()})}
+function chips(el,obj,get,set){el.innerHTML=Object.entries(obj).map(([k,v])=>`<button class="opt ${get()==k?'on':''}" data-k="${k}">${Array.isArray(v)?v[0]:v}</button>`).join('');$$('#'+el.id+' .opt').forEach(b=>b.onclick=()=>{set(b.dataset.k);chips(el,obj,get,set);save()})}
+function tab(t){$$('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t==t));$$('.pane').forEach(p=>p.classList.toggle('on',p.id=='p-'+t))}
+function enter(t){const h=$('#hero');h.classList.add('out');setTimeout(()=>{document.body.classList.add('in');h.classList.remove('out');scrollTo(0,0);if(t)tab(t);if(!st.items.length)toast('Welcome. Tap the meadow to plant your first flower.')},450)}
+$$('[data-go]').forEach(b=>b.onclick=()=>document.body.classList.contains('in')?(b.dataset.go=='flowers'?openCat():(tab(b.dataset.go||'flowers'),scrollTo(0,0))):(b.dataset.go=='flowers'?openCat():enter(b.dataset.go)));
+$('#home').onclick=()=>{document.body.classList.remove('in');scrollTo(0,0)};
+$('#explore').onclick=openCat;
+$$('.tab').forEach(b=>b.onclick=()=>tab(b.dataset.t));
+function openCat(){$('#cg').innerHTML=F.map(f=>`<div class="cd">${flower(f[0],f[3][0])}<h3>${f[1]}</h3><small>${f[4]}</small><p class="ital">${f[5]}</p><button class="btn sm" data-p="${f[0]}">Plant this</button></div>`).join('');
+$$('#cg [data-p]').forEach(b=>b.onclick=()=>{$('#cat').close();tool={k:'f',t:b.dataset.p,c:0};if(!document.body.classList.contains('in'))enter();renderTray();renderSw();hint();toast(Fm[tool.t][1]+' is ready. Tap the meadow.')});$('#cat').showModal()}
+$('#cx').onclick=()=>$('#cat').close();
+$('#cats').innerHTML=Object.entries(CATS).map(([k,v])=>`<button class="chip" data-c="${k}">${v}</button>`).join('')+'<input id="qs" placeholder="Search flowers" aria-label="Search flowers">';
+$$('#cats .chip').forEach(b=>b.onclick=()=>{cat=b.dataset.c;renderTray()});
+$('#qs').oninput=e=>{q=e.target.value.toLowerCase();renderTray()};
+/* heart */
+$('#moods').innerHTML=Object.entries(M).map(([k,m])=>`<button class="mb" data-k="${k}" style="--c:${m[4]}88">${flower(m[3][0],Fm[m[3][0]][3][0])}<b>${m[0]}</b><small>${m[1]}</small></button>`).join('');
+function showMood(k){const m=M[k];st.mood=k;applyMood();save();$$('.mb').forEach(b=>b.classList.toggle('on',b.dataset.k==k));
+$('#res').innerHTML=`<div class="pair">${m[3].map(t=>flower(t,Fm[t][3][0])).join('')}</div><p class="msg">${m[2]}</p><button class="btn pri" id="mp">Plant ${m[3].map(t=>Fm[t][1]).join(' & ')} in my garden</button><p><small>A little creative encouragement, not medical or therapeutic advice. Your garden stays exactly as it is.</small></p>`;
+$('#mp').onclick=()=>{m[3].forEach(t=>plant(rnd(10,90),rnd(66,94),{k:'f',t,c:0}));scrollTo({top:0,behavior:'smooth'});toast(`${m[0]} is blooming in your garden.`)}}
+$$('.mb').forEach(b=>b.onclick=()=>showMood(b.dataset.k));
+/* customize */
+$('#nm').value=st.name;$('#nm').oninput=e=>{st.name=e.target.value||'My Little Meadow';$('#title').textContent=st.name;save()};
+$('#decos').innerHTML=Object.entries(D).map(([k,v])=>`<button class="fc" data-t="${k}">${dsvg(k)}<span>${v[0]}</span></button>`).join('');
+$$('#decos .fc').forEach(b=>b.onclick=()=>{setTool({k:'d',t:b.dataset.t,c:0});toast(D[b.dataset.t][0]+' selected. Tap the meadow to place it.')});
+$('#clr').onclick=()=>{if(confirm('Clear every flower and decoration from this garden?')){st.items=[];items.innerHTML='';hideInfo();save();count()}};
+/* reveal, export, share */
+$('#rev').onclick=()=>{hideInfo();g.scrollIntoView({behavior:'smooth',block:'center'});const o=$('#rv');$('#rn').textContent=st.name;$('#rc').textContent=`${st.items.length} little things growing, made by you.`;
+parts(o.querySelector('.rp'),'petals',34);g.classList.add('glow');o.classList.add('on');setTimeout(()=>o.querySelector('.card').classList.add('show'),2600)};
+$('#rx').onclick=()=>{$('#rv').classList.remove('on');$('#rv .card').classList.remove('show');g.classList.remove('glow')};
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function exportSvg(W=1200){const r=g.clientHeight/g.clientWidth,H=Math.round(W*r),K=+getComputedStyle(g).getPropertyValue('--k')||1;
+let s=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">`+bg(st.sky,'x').replace('<svg ',`<svg width="${W}" height="${H}" `);
+[...st.items].sort((a,b)=>a.y-b.y).forEach(o=>{const w=wOf(o)*K/100*W,h=o.k=='f'?w*1.6:w,x=o.x/100*W-w/2,y=o.y/100*H-h;
+s+=(o.k=='f'?flower(o.t,col(o)):dsvg(o.t)).replace('<svg ',`<svg x="${x}" y="${y}" width="${w}" height="${h}" overflow="visible" `)});
+return s+`<text x="${W*.04}" y="${H*.94}" font-family="Georgia,serif" font-style="italic" font-size="${W*.04}" fill="#FFFEFC" fill-opacity=".95">${esc(st.name)}</text><text x="${W*.96}" y="${H*.94}" text-anchor="end" font-family="Georgia,serif" font-size="${W*.025}" fill="#FFFEFC" fill-opacity=".9">bloom.</text></svg>`}
+$('#dl').onclick=()=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=1200;c.height=Math.round(1200*g.clientHeight/g.clientWidth);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='my-bloom-garden.png';a.click()})};im.onerror=()=>toast('Could not make the image in this browser.');
+im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(exportSvg())};
+$('#lk').onclick=()=>{const j=JSON.stringify({n:st.name,s:st.sky,f:st.fx,m:st.mood,i:st.items.map(o=>[o.t,o.k,o.c,o.x,o.y])}),
+url=location.href.split('#')[0]+'#g='+btoa(unescape(encodeURIComponent(j))).replace(/\+/g,'-').replace(/\//g,'_');
+(navigator.clipboard?navigator.clipboard.writeText(url):Promise.reject()).then(()=>toast('Link copied. It works once Bloom is hosted online.'),()=>prompt('Copy your garden link:',url))};
+$('#keep').onclick=()=>{visit=false;save();$('#keep').hidden=true;history.replaceState(null,'',location.pathname);toast('Saved as your garden.')};
+/* init */
+load();
+$('#lg').innerHTML=stem('daisy')+H.daisy('#FFFEFC');
+const hero=[['daisy',0,12,88],['tulip',0,24,80],['daisy',1,34,93],['tulip',3,44,78],['daisy',0,55,90],['tulip',1,66,82],['daisy',3,76,95],['tulip',4,86,86],['cosmos',0,6,72],['sunflower',0,93,76],['lavender',0,71,72],['poppy',0,17,70]];
+$('#hs').innerHTML=`<div class="bgw">${bg('sunrise','h')}</div><div class="items" id="hi"></div><div class="fx" id="hf"></div>${bfs()}`;
+hero.forEach((a,j)=>mk({i:j+100,k:'f',t:a[0],c:a[1],x:a[2],y:a[3],at:0},false,$('#hi')));parts($('#hf'),'petals',16);
+$('#bfs').innerHTML=bfs();
+chips($('#skies'),S,()=>st.sky,k=>{st.sky=k;applySky()});
+chips($('#fxs'),FX,()=>st.fx,k=>{st.fx=k;applyFx()});
+st.items.forEach(o=>mk(o,false));
+$('#title').textContent=st.name;count();applySky();applyFx();applyMood();renderTray();renderSw();hint();
+if(st.mood)showMood(st.mood);
+if(visit){$('#keep').hidden=false;enter();setTimeout(()=>toast('You are visiting a shared garden. Your own is safe.'),600)}
+</script></body></html>
